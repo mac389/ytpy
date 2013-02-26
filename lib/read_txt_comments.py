@@ -16,7 +16,6 @@ import utils as tech
 import cPickle
 from matplotlib.pyplot import *
 
-path = 'https://acharya:marathon221$@acharya.cloudant.com/'
 drug = argv[1]
 dbname = 'yt-%s' % drug
 
