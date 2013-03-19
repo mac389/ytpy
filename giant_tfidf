@@ -1,0 +1,5 @@
+#create a gigantic tfidf
+
+import couchdb
+
+db_names = [spice-k2,cocaine ,marijuana,science,salvia,coffee,aspirin]
