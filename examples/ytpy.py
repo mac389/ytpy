@@ -1,10 +1,11 @@
+import couchdb	
+
+import utils as tech
+
 from sys import argv
 
 from switch import *
 from YouTubeSearch import *
-
-import utils as tech
-import couchdb	
 
 def list_comments(video):										
 	return tech.lemmingtize(tech.remove_stopwords(video['comments']))		
@@ -34,7 +35,6 @@ def save(video,format='txt'):
 			break
 		if case('txt'):
 			if len(video['comments']) > 0:
-				#name the file based on the name of the overall search (directory) as well as the video
 				with open(path.join(dir_path, tech.validate(video['title'])),'a') as f:
 		 			f.write(video['comments'])
 			print 'Saved %s as text' % video['title']
@@ -44,19 +44,12 @@ drug = argv[1]
 drug = drug.replace('-',' ')
 print 'You are searching YouTube for %s' % drug
 
-#get the directory name based on this search term
-dir_path = './%s' %drug
-dir_path
-
-#if there is no directory yet for this search term, make a new one
-if not path.exists(dir_path):
-	print 'Directory /%s does not exist; creating now.' %drug
-	makedirs(dir_path)
-
-cocaine_comments = YouTubeSearch(drug)
+data = YouTubeSearch(drug)
+'''
 server  = couchdb.Server()
 #edit this back later: dbname = 'yt-%s' % drug
 dbname = 'yt-k2/spice'
 for video in cocaine_comments:
 #	save(video)
 	server[dbname].save(video)
+'''
