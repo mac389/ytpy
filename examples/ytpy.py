@@ -1,11 +1,19 @@
 import couchdb	
 
-import utils as tech
+from sys import argv,path
 
-from sys import argv
+
+
+
+#initialization
+path.append('/Volumes/My Book/Dropbox/ToxTweet/Software/APIs/ytpy/lib')
+path.append('/Volumes/My Book/Dropbox/ToxTweet/Software/APIs/ytpy/examples')
+
+import utils as tech
 
 from switch import *
 from YouTubeSearch import *
+
 
 def list_comments(video):										
 	return tech.lemmingtize(tech.remove_stopwords(video['comments']))		
@@ -45,11 +53,15 @@ drug = drug.replace('-',' ')
 print 'You are searching YouTube for %s' % drug
 
 data = YouTubeSearch(drug)
-'''
+
+def update_database
+
 server  = couchdb.Server()
-#edit this back later: dbname = 'yt-%s' % drug
-dbname = 'yt-k2/spice'
-for video in cocaine_comments:
-#	save(video)
+
+dbname = 'yt-%s' % drug
+for video in data:
+	print video['comments']
+'''
+	save(video)
 	server[dbname].save(video)
 '''

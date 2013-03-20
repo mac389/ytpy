@@ -8,6 +8,7 @@ from time import sleep
 from numpy.random import random
 from termcolor import colored,cprint
 
+
 class YouTubeSearch(object):
 	def __init__(self,term,exclude_videos=True): 
 		self.term = term
@@ -21,9 +22,10 @@ class YouTubeSearch(object):
 		self.video_params = {
 								'alt':'json',
 								'max-results':50}
-								
-		self.video_stopwords = ''.join(open('.videostops','rb').readlines()) if exclude_videos else None
-	
+
+		self.exopath = '/Volumes/My Book/Dropbox/ToxTweet/Software/APIs/ytpy/constants'
+		self.video_stopwords = ''.join(open(self.exopath+'/'+'entities','rb').readlines()) if exclude_videos else None
+		
 	def __repr__(self):
 		return self.__class__.__name__+repr((self.term))					
 
