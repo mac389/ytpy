@@ -1,5 +1,4 @@
 from sys import argv
-from os import path, makedirs
 
 from switch import *
 from YouTubeSearch import *

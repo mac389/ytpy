@@ -23,8 +23,6 @@ from scipy.stats import scoreatpercentile
 
 from collections import defaultdict
 
-from matplotlib import rcParams
-rcParams['text.usetex'] = True
 
 #------Adaptation of Flesch-Kincaid grade level for tweets-----------
 #Instead of words per sentence, we consider words per tweet
@@ -162,7 +160,6 @@ def clean(tweet,keepTags = False):
 
 def remove_stopwords(utterance, languages=['english','spanish','french']): 
 	#languages is a list
-	print 'HHHHHHHHHHHHHHHHHHHHHHHHHHH'
 	from nltk.corpus import stopwords
 	my_stopwords = map(lambda word: word.rstrip('\n'),open('stopwords','rb').readlines())
 	allowed_languages = {'english','spanish','french'} #This is a set
@@ -179,58 +176,6 @@ def collocations(data, cutoff=20, intervening_words = 0):
 		return finder.nbest(BigramAssocMeasures().pmi, cutoff)	
 	else:
 		return finder.nbest(BigramAssocMeasures().likelihood_ratio,cutoff)
-
-def plot_word_frequency(freqDist,cutoff=75,normalized=True,drug=None, poster = False):
-	if poster:
-		rcParams['axes.linewidth']=2
-		rcParams['mathtext.default']='bf'
-		rcParams['xtick.labelsize']='large'
-		rcParams['ytick.labelsize']='large'
-	labels,vals = zip(*freqDist.items())
-	labels = list(labels)
-	vals = array(vals).astype(float)
-	vals /= vals.sum() #<--- Normalize values
-
-	fig = figure(figsize=(6,7))
-	fig.subplots_adjust(left=0.08,right=0.98, top = .95, bottom=0.18)
-	ax = fig.add_subplot(111)
-	
-	
-	line, = ax.plot(vals[:cutoff], 'k', linewidth=2)
-	adjust_spines(ax,['bottom','left'])	
-	ax.set_ylim(ymax=0.20)
-
-	line.set_clip_on(False)
-	
-	ax.set_ylabel(r'\Large \textbf{Frequency}')
-	
-	ax.set_xticks(arange(cutoff))
-	ax.set_xticklabels([r'\Large \textbf{%s}'%label for label in labels[:cutoff]], rotation=90)
-
-	ax.annotate(r"\Large \textbf{%s}" %drug.capitalize(), xy=(.5, .5),  xycoords='axes fraction',horizontalalignment='center', verticalalignment='center')
-	tight_layout()
-
-
-def adjust_spines(ax,spines):
-    for loc, spine in ax.spines.items():
-        if loc in spines:
-            spine.set_position(('outward',10)) # outward by 10 points
-            #spine.set_smart_bounds(True)
-        else:
-            spine.set_color('none') # don't draw spine
-
-    # turn off ticks where there is no spine
-    if 'left' in spines:
-        ax.yaxis.set_ticks_position('left')
-    else:
-        # no yaxis ticks
-        ax.yaxis.set_ticks([])
-
-    if 'bottom' in spines:
-        ax.xaxis.set_ticks_position('bottom')
-    else:
-        # no xaxis ticks
-        ax.xaxis.set_ticks([])
 	
 def validate(filename):
 	import string
@@ -250,7 +195,6 @@ def rand_chars(length):
 	
 	return ''.join(random.choice(string.letters) for i in range(length))
 
-
 def grab_locs_from(filename):
 	if filename.endswith('.xls'):
 		from xlrd import open_workbook
@@ -267,14 +211,6 @@ def grab_locs_from(filename):
 		latitudes = data[:,3]
 		longis = data[:,4]
 	return {str(int(zipcode)):','.join([str(lat),str(lon)]) for zipcode,lat,lon in zip(zipcodes,latitudes,longis)}
-
-
-def test():
-	tweet = 'The quick brown RT 12. jumped over l3zy f)z'
-	print clean(tweet)
-	print lexdiv(tweet)
-	print FK(tweet)
-	print LZC(tweet)
 
 def _decode_list(data):
     rv = []
@@ -340,94 +276,6 @@ def grouper(n, iterable, fillvalue=None):
     # grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx
     args = [iter(iterable)] * n
     return izip_longest(fillvalue=fillvalue, *args)
-
-#From http://blog.marcus-brinkmann.de/2011/09/17/a-better-iterator-for-python-couchdb/
-def couchdb_pager(db, view_name='_all_docs',
-                  startkey=None, startkey_docid=None,
-                  endkey=None, endkey_docid=None, bulk=5000):
-    # Request one extra row to resume the listing there later.
-    options = {'limit': bulk + 1}
-    if startkey:
-        options['startkey'] = startkey
-        if startkey_docid:
-            options['startkey_docid'] = startkey_docid
-    if endkey:
-        options['endkey'] = endkey
-        if endkey_docid:
-            options['endkey_docid'] = endkey_docid
-    done = False
-    while not done:
-        view = db.view(view_name, **options)
-        rows = []
-        # If we got a short result (< limit + 1), we know we are done.
-        if len(view) <= bulk:
-            done = True
-            rows = view.rows
-        else:
-            # Otherwise, continue at the new start position.
-            rows = view.rows[:-1]
-            last = view.rows[-1]
-            options['startkey'] = last.key
-            options['startkey_docid'] = last.id
-
-        for row in rows:
-            yield row.id
-            
-def add_random_fields():
-	server = couchdb.Server()
-	databases = [database for database in server if not database.startswith('_')]
-	for database in databases:
-		print database
-		count = 0
-		for document in couchdb_pager(server[database]):
-			result = server[database][document]
-			if 'results' in result:
-				#
-				for tweet in result['results']:
-					if tweet and 'rand_num' not in tweet:
-						tweet['rand_num'] = rand()
-						server[database].save(tweet)
-			elif 'text' in result and result['text'] and 'rand_num' not in result:
-					results['rand_num'] = rand()
-					count = count +1
-		print count
-def select_random(drug,fraction = 0.10):
-	import csv
-	server = couchdb.Server()
-	#databases = [database for database in server if not database.startswith('_')]
-	databases = ['toxtweet']
-	count = 0
-	selected = 0
-	for database in databases:
-		print database
-		with open(database+"_for_rating.csv",'w') as file:
-			writer = csv.writer(file)
-			for document in couchdb_pager(server[database]):	
-				result = server[database][document]
-				if 'results' in result:
-					for tweet in result['results']:
-						if tweet and 'rand_num' in tweet and drug in query:
-							if tweet['rand_num'] < fraction:
-								row_data = [clean(tweet['text']),tweet['rand_num'],document]
-								writer.writerow(row_data)
-								selected = selected + 1
-				elif 'text' in result and result['rand_num'] and result['rand_num'] < fraction:
-					row_data = [clean(result['text']),result['rand_num'],document]
-					writer.writerow(row_data)
-					selected = selected + 1
-			count = count + 1 
-			if count%10000==0:
-				print "In ",database,selected,' of ',count,'selected'
-	wbk.save(database+"_for_rating.xls")
-	
-def find_all_document_tweets( server=couchdb.Server() ):
-    databases = [database for database in server if not database.startswith('_')]
-    for database in databases:
-        for document in couchdb_pager(server[database]):
-            if 'results' in server[database][document]:
-                for tweet in server[database][document]['results']:
-                    yield database, document, tweet
-                    
 
 #Accessory function for NaiveBayesClassifier, perhaps better as a lambda function
 

@@ -1,7 +1,9 @@
-import utils as tech
-import requests
-from os import path
 import os
+import requests
+
+import utils as tech
+
+from os import path
 from time import sleep
 from numpy.random import random
 from termcolor import colored,cprint
@@ -47,8 +49,7 @@ class YouTubeSearch(object):
 				comments =  video['media$group']['media$description']['$t']
 				print '-----'
 				if tech.should_exclude_video(comments,self.video_stopwords):
-					print
-					cprint ('Skipping %s. It has too many stopwords.' % result['title'],'red')
+					cprint ('\nSkipping %s. It has too many stopwords.' % result['title'],'red')
 					del result
 					print '-----'
 					continue
