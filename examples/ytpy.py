@@ -1,11 +1,6 @@
 import couchdb	
 
 from sys import argv,path
-
-
-
-
-#initialization
 path.append('/Volumes/My Book/Dropbox/ToxTweet/Software/APIs/ytpy/lib')
 path.append('/Volumes/My Book/Dropbox/ToxTweet/Software/APIs/ytpy/examples')
 
@@ -54,7 +49,8 @@ print 'You are searching YouTube for %s' % drug
 
 data = YouTubeSearch(drug)
 
-def update_database
+def update_database():
+	pass
 
 server  = couchdb.Server()
 

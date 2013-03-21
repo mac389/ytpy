@@ -160,8 +160,9 @@ def clean(tweet,keepTags = False):
 
 def remove_stopwords(utterance, languages=['english','spanish','french']): 
 	#languages is a list
+	utterance = word_tokenize(utterance)
 	from nltk.corpus import stopwords
-	my_stopwords = map(lambda word: word.rstrip('\n'),open('stopwords','rb').readlines())
+	my_stopwords = map(lambda word: word.rstrip('\n'),open('/Volumes/My Book/Dropbox/ToxTweet/Software/APIs/ytpy/constants/stopwords','rb').readlines())
 	allowed_languages = {'english','spanish','french'} #This is a set
 	#Serial processing is least obfuscated
 	for language in set(languages).intersection(allowed_languages):
