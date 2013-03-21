@@ -5,24 +5,26 @@ from matplotlib import rcParams
 
 rcParams['xtick.direction'] = 'in'
 rcParams['ytick.direction'] = 'in'
-
+rcParams['text.usetex'] = True
 def adjust_spines(ax,spines):
 	''' Taken from http://matplotlib.org/examples/pylab_examples/spine_placement_demo.html '''
-	for loc, spine in ax.spines.iteritems():
+	for loc, spine in ax.spines.items():
 		if loc in spines:
-			spine.set_position(('outward',10))
-			spine.set_smart_bounds(True) #Doesn't work for log log plots
-			spine.set_linewidth(3)
+			spine.set_position(('outward',10)) # outward by 10 points
+			spine.set_smart_bounds(True)
 		else:
-			spine.set_color('none') 
+			spine.set_color('none') # don't draw spine
+	# turn off ticks where there is no spine
 	if 'left' in spines:
 		ax.yaxis.set_ticks_position('left')
 	else:
+		# no yaxis ticks
 		ax.yaxis.set_ticks([])
 
 	if 'bottom' in spines:
 		ax.xaxis.set_ticks_position('bottom')
 	else:
+		# no xaxis ticks
 		ax.xaxis.set_ticks([])
 
 def scree_plot(eigVals,cutoff=0.95,savename=None, show=False,ax=None,cumulative=False):
@@ -55,7 +57,7 @@ def scree_plot(eigVals,cutoff=0.95,savename=None, show=False,ax=None,cumulative=
 		plt.show()
 	plt.close()
 
-def plot_word_frequency(freqDist,cutoff=75,normalized=True,drug=None, poster = False):
+def plot_word_frequency(freqDist,cutoff=75,normalized=True,drug=None, poster = False, show=True,savename=None):
 	if poster:
 		rcParams['axes.linewidth']=2
 		rcParams['mathtext.default']='bf'
@@ -64,24 +66,30 @@ def plot_word_frequency(freqDist,cutoff=75,normalized=True,drug=None, poster = F
 	
 	labels,vals = zip(*freqDist.items())
 	labels = list(labels)
-	vals = array(vals).astype(float)
+	vals = np.array(vals).astype(float)
 	vals /= vals.sum() #<--- Normalize values
 
-	fig = figure(figsize=(6,7))
-	fig.subplots_adjust(left=0.08,right=0.98, top = .95, bottom=0.18)
+	fig = plt.figure(figsize=(12,8))
 	ax = fig.add_subplot(111)
+	plt.subplots_adjust(left=0.08)
 	
 	line, = ax.plot(vals[:cutoff], 'k', linewidth=2)
-	adjust_spines(ax,['bottom','left'])	
-	ax.set_ylim(ymax=0.20)
+	#adjust_spines(ax,['bottom','left'])	
+	ax.set_ylim(ymax=max(vals)+0.01)
 
 	line.set_clip_on(False)
 	
 	ax.set_ylabel(r'\Large \textbf{Frequency}')
-	
-	ax.set_xticks(arange(cutoff))
+	ax.set_xticks(np.arange(cutoff))
+	ax.set_xlim(0,cutoff)
 	ax.set_xticklabels([r'\Large \textbf{%s}'%label for label in labels[:cutoff]], rotation=90)
 
-	ax.annotate(r"\Large \textbf{%s}" %drug.capitalize(), xy=(.5, .5),  xycoords='axes fraction',horizontalalignment='center', verticalalignment='center')
-	tight_layout()
+	if drug:
+		ax.annotate(r"\Large \textbf{%s}" %drug.capitalize(), 
+			xy=(.5, .5),  xycoords='axes fraction',horizontalalignment='center', verticalalignment='center')
 
+	if savename:
+		plt.savefig(savename+'.png')
+
+	if show:
+		plt.show()
